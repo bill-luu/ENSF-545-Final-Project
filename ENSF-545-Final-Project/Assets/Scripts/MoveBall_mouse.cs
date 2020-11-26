@@ -4,11 +4,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using System;
 
 
 public class MoveBall_mouse : MonoBehaviour
 {
     private Vector3 savedPointerValue;
+    private bool processingFlick = false;
 
     void Update()
     {
@@ -19,15 +21,17 @@ public class MoveBall_mouse : MonoBehaviour
             return;
         }
 
-        if(mouse.leftButton.wasPressedThisFrame)
+        if(mouse.leftButton.wasPressedThisFrame && this.ClickedOnObject())
         {
             // Save position for force calculation
-            this.savedPointerValue = ConvertToWorldPoint((mouse.position.ReadValue()));
+            this.savedPointerValue = mouse.position.ReadValue();
+            this.processingFlick = true;
         }
 
-        if(mouse.leftButton.wasReleasedThisFrame)
+        if(mouse.leftButton.wasReleasedThisFrame && this.processingFlick)
         {
            gameObject.SendMessage("ChangeDirection", CalculateForceVector());
+           this.processingFlick = false;
         }
 
     }
@@ -39,8 +43,9 @@ public class MoveBall_mouse : MonoBehaviour
             Debug.Log("Null Mouse");
             return new Vector2(0.0f, 0.0f);
         }
-        Vector3 currentMouseVec3 = ConvertToWorldPoint(Mouse.current.position.ReadValue());
-        return new Vector2(currentMouseVec3.x - this.savedPointerValue.x, currentMouseVec3.y - this.savedPointerValue.y);
+        float x = (Mouse.current.position.ReadValue().x - this.savedPointerValue.x) / Screen.width;
+        float y = (Mouse.current.position.ReadValue().y - this.savedPointerValue.y) / Screen.height;
+        return new Vector2(x, y);
     }
 
     bool ClickedOnObject()
@@ -59,10 +64,5 @@ public class MoveBall_mouse : MonoBehaviour
         }
 
         return false;
-    }
-
-    Vector3 ConvertToWorldPoint(Vector2 screenPoint)
-    {
-        return Camera.main.ScreenToWorldPoint(new Vector3(screenPoint.x, screenPoint.y, Camera.main.nearClipPlane));
     }
 }
