@@ -33,6 +33,20 @@ public class Moveable : MonoBehaviour
         rb.AddForce(movement * speed, ForceMode.Impulse);
     }
 
+    private void OnCollisionEnter(Collision collision) {
+        if(collision.collider.gameObject.CompareTag("Collidable")) {
+            Rigidbody otherRb = collision.collider.gameObject.GetComponent<Rigidbody>();
+            float additionalForce = 0.0f;
+            if(otherRb.velocity.magnitude > 120.0f) {
+                additionalForce = 50.0f;
+            }
+            rb.AddForce(collision.impulse.normalized * (25.0f + additionalForce), ForceMode.Impulse);
+            movementX = collision.impulse.normalized.x;
+            movementY = collision.impulse.normalized.z;
+            speed = 5.0f;
+        }
+    }
+
     void FixedUpdate() {
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);

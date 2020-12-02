@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class PlayerController : MonoBehaviour
             other.gameObject.SetActive(false);
             score--;
             SetCountText();
+            if(score == 0) {
+                SceneManager.LoadScene(2);
+            }
         }
     }
 

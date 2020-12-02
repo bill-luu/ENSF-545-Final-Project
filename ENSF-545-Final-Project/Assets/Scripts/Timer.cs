@@ -1,30 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System;
 using UnityEngine;
-using TMPro;
+using System;
 
-public class Timer : MonoBehaviour
+public static class Timer
 {
-    private float timer = 0.0f;
-    public TextMeshProUGUI timerText;
-    // Start is called before the first frame update
-    void Start()
+    static float timer = 0.0f;
+
+    public static void AddTime(float seconds)
     {
-        SetTimerText();
+        timer += seconds;
     }
 
-    // Update is called once per frame
-    void Update()
+    public static String GetTimeText
     {
-        timer += Time.deltaTime;
-        SetTimerText();
+        get {
+            var ss = (timer % 60).ToString("00.000");
+            var mm = (Math.Floor((timer / 60)) % 60).ToString("00");
+            return mm + ":" + ss;
+        }
+
     }
 
-    void SetTimerText()
+    public static void Reset()
     {
-        var ss = (timer % 60).ToString("00.000");
-        var mm = (Math.Floor((timer / 60)) % 60).ToString("00");
-        timerText.text = "Time: " + mm + "." + ss;
+        timer = 0.0f;
     }
 }
