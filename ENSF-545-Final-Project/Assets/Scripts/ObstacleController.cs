@@ -4,44 +4,40 @@ using UnityEngine;
 
 public class ObstacleController : MonoBehaviour
 {
-    public float patrolTime = 10f;
     public Transform[] waypoints;
 
-    private int index;
-    private float agentSpeed;
+    private int index = 0;
+    public float agentSpeed = 0.5f;
     private UnityEngine.AI.NavMeshAgent agent;
     public bool shouldLog = false;
+    public float stoppingDistance = 2.0f;
+    private Vector3 distanceToWaypoint;
 
-    private void Awake()
+    void Start()
     {
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-
-        if(agent != null)
-        {
-            agentSpeed = agent.speed;
-        }
-
-        index = Random.Range(0, waypoints.Length);
-
-        InvokeRepeating("Tick", 0.0f, 2.0f);
-        if(waypoints.Length > 0)
-        {
-            InvokeRepeating("Patrol", 0, patrolTime);
-        }
+        distanceToWaypoint = Vector3.zero;
+        GetComponent<Rigidbody>().freezeRotation = true;
     }
-
-    void Patrol()
+    void FixedUpdate ()
     {
-        index = index == waypoints.Length - 1 ? 0 : index + 1;
-    }
-
-    void Tick()
-    {
-        agent.destination = waypoints[index].position;
-        agent.speed = agentSpeed;
-        if(shouldLog)
+        //get the vector from your position to current waypoint
+        distanceToWaypoint = waypoints[index].transform.position - transform.position;
+        //check our stoppingDistance to the current waypoint, Are we near enough?
+        Debug.Log(distanceToWaypoint.magnitude);
+        Debug.Log(distanceToWaypoint);
+        if(distanceToWaypoint.magnitude < stoppingDistance)
         {
-            Debug.Log(agent.destination);
+            if(index < waypoints.Length-1) //switch to the nex waypoint if exists
+            {
+                index++;
+            }
+            else //begin from new if we are already on the last waypoint
+            {
+                index = 0;
+            }
         }
+        Vector3 dir = distanceToWaypoint.normalized * agentSpeed;
+
+        GetComponent<Rigidbody>().MovePosition(transform.position + dir);
     }
 }
